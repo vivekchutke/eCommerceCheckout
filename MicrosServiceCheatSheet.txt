@@ -1,0 +1,179 @@
+Running and connecting Rabbit to Ziping Server:
+
+CLI Command: 
+export PATH=$PATH:/usr/local/opt/rabbitmq/sbin
+For Starting Rabbit MQ : rabbitmq-server
+RABBIT_URI=amqp://localhost java -jar zipkin.jar
+Stopping Rabbit MQ: on MAC
+brew services stop rabbitmq
+starting Again:
+rew services start rabbitmq
+
+--------------------------------------------------------------------------------------------------------
+Order in which the services needs to be started
+1. Naming Server
+2. Zipkin Tracking Distributed server
+3. Currency Exchange Server
+4. Currency Converter service
+5. API Zulu Api Server
+--------------------------------------------------------------------------------------------------------
+https://zipkin.apache.org/pages/quickstart
+--------------------------------------------------------------------------------------------------------
+
+Few URIs
+Exchange Call : http://localhost:8000/currency-exchange/from/USD/to/INR
+Conversion Call: http://localhost:8100/currency-converter/from/EUR/to/USD/quantity/100
+Conversion call through Feign: http://localhost:8100/currency-converter-feign/from/AUD/to/INR/quantity/87
+Zuul API Gateway: http://localhost:8765/currency-conversion-service/currency-converter-feign/from/USD/to/INR/quantity/1000
+Naming Server: http://localhost:8761/
+Zipkin Server: http://localhost:9411/zipkin/
+H2 Console URL : http://localhost:8000/h2-console
+
+https://cfexchangeservice.cfapps.io/currency-exchange/from/USD/to/INR
+https://cfconversionservice.cfapps.io/currency-converter/from/USD/to/INR/quantity/1001
+
+--------------------------------------------------------------------------------------------------------
+
+Deployment:
+NamingServer:
+cf l   # to login
+cf auth <userName> <psswd>
+cf orgs or spaces   # List the orgs and spaces in an PCF account
+cf target or cf t  # to pull the current target information on PCF
+cf target -o <OrgName>  # ex: cf target -o vivekchutke-org
+cf target -s <spaceName> #ex : cf target -s development
+cf restart-app-instance <AppName> <IndexNumber>     # ex: cf restart-app-instance pcf-product-service 1 To reststart the App instance with the index number if there are multiple apps running
+cf restage YOUR-APP   # Restaging your app stops your app and restages it, by compiling a new droplet and starting it.
+cf push --help
+cf tasks pcf-product-service    # Listing tasks for an app
+cf push CFEurekaNamingServer -p currency-exchange-service-0.0.1-SNAPSHOT.jar -b https://github.com/cloudfoundry/java-buildpack.git
+Currency Exchange Server:
+cf push CFExchangeService -p currency-exchange-service-0.0.1-SNAPSHOT.jar -b https://github.com/cloudfoundry/java-buildpack.git
+cf apps # lists all the apps
+cf logs SpringPostgreySQL
+cf logs SpringPostgreySQL --recent
+cf marketplace   #Lists all the marketplace services
+cf create-service mlab sandbox myMlabServices     # Creating a service
+https://www.udemy.com/certificate/UC-B4RF1LQL/
+cf scale # To Scale your application
+cf push  <AppName> -m 1G --random-route   # --random-route generates a random URI for you.which is useful in shared test environment
+cf create-service p-mysql 100mb-dev mySql    # Check this statment it might not be entirely correct
+cf s # to check the list of all services runnning
+cf restage # to restage the environment after binding a service
+cf restart <ServiceName>   
+cf app <serviceName>   #check the health status of the service
+cf | grep manifest   # Very Useful command which tells about the things we can do with a comamand. In this case it's manifest
+cf t   # view the target org or space
+cf security-groups   # View all security groups of an org
+cf security-group <groupName>    # to get more insights on the security aspect
+cf unbind-running-security-group <groupName>
+cf env <appName>   # check the environment properties of an application
+cf spaces   #lists the various spaces we have in an org
+cf scale <AppName> -i <NoofInstances>  # to scale an app. Ex: cf scale PCFExchangeService -i 2
+cf routes # gets routes to all our apps
+cf m -s app-autoscaler    # to get the service information for a service. In this case it's for AutoScaler
+cf bind-service PCFExchangeService myAutoScaler   # To Bind an App to an service
+cf create-user-provided-service mtNewRelic -p license_key    # Adding a new Relic key
+cf set-env <appName> JBP_CONFIG_OPEN_JDK_JRE "{jre: {version: 1.8.0_45}}"   # Setting up the app with a specific environment ex:  cf set-env PCFExchangeService JBP_CONFIG_OPEN_JDK_JRE "{jre: {version: 1.8.0_45}}"
+cf create-user-provided-service SERVICE_INSTANCE [-p CREDENTIALS] [-l SYSLOG_DRAIN_URL] [-r ROUTE_SERVICE_URL] [-t TAGS]
+cf stacks #command to list the stacks available in a deployment ex; cf push PCFExchangeService -s cflinuxfs3
+cf cups <serviceName> -p "username, password"  or cf cups <serviceName> -p '{"username":"admin","password":"pa55woRD"}'
+cf uups <serviceName> -p "username, password"
+cf ssh <AppName>   # to SSH to an Environment and view the config
+cf enable-ssh <AppName> 
+cf push Blue --random-route   #Use the random route to generate a random route
+cf buildpacks   # Lists all Build Packs
+cf push my-app -c "bundle exec rake VERBOSE=true"   # -c to provide a custom command to start the server if any
+cf push -k 1024M   # to provide a disk_quota to an app
+cf push --no-route    # To upload and start an app without any routes created. We later can create routes 
+cf push CFGradleCurrencyExchangeService -c "null"    # to Start the app using the default command from build pack
+cf verion  # Lists the version of the CF
+cf set-env CFGradleCurrencyExchangeService JBP_CONFIG_OPEN_JDK_JR "{jre: {version: 1.8.0_45}}"   # Setting up of env variabes
+cf create-service p-config-server trial myConfigurationServer -c config_server.json   # Setting up a config server with git configuration
+curl -x POST https://AppName/actuator/refresh   # to Refresh the App when properties in Git repos changes
+cf service-access
+cf service-brokers
+cf security-groups  # list all the security groups belonging to your organization, Can be used by Dev to investigate whats going on. Dont need admim priveleges
+cf security-group <SecurityGroupName>   #Gives details about the security group, Can be used by Dev to investigate whats going on. Dont need admim priveleges
+cf create-user-provided-service currency_exchange_conversion_service-logdrain -l syslog://logs.papertrailapp.com:26835
+cf install-plugin PLUGIN_NAME  # Used to install a plugin from a https source, downloaded source etc ex:  cf install-plugin ~/Downloads/plugin-foobar
+
+
+
+
+
+Blue/Green Deployment:
+1. cf push <AppName> -n <hostName>  # ex: cf push Blue -n demo-time  
+2. cf push <AppName> -n <hostName>  # ex: cf push Green -n demo-time-temp
+3. cf map-route <AppName> <domainName> -n <hostName> # ex: cf map-route Green example.com -n demo-time
+4. cf unmap-route <AppName> <domainName>  -n <hostName #ex: cf unmap-route Blue example.com -n demo-time
+
+Deploying Multiple Apps with one Manifest File.
+1. Creata a manifest file with the description of all apps and use cf push command to install multiple apps
+2. Refer https://docs.pivotal.io/pivotalcf/2-6/devguide/deploy-apps/manifest-attributes.html for Manifest files description
+
+
+User Provided Service Instance:
+
+Setting up PaterTrail to capture logs
+
+1. Create an account on papertrail
+2. go to this URL https://papertrailapp.com/systems/new
+3. select cloud foundry option / Provide a name for the cell we want to call it as ex: "mylog-drain"
+4. Once you click on the save butto a unique url with port is dsiaplyed that can be configured with our application
+5. create an user provided service:
+6. cf create-user-provided-service currency_exchange_conversion_service-logdrain -l syslog://logs.papertrailapp.com:26835
+7. Bind: cf bind-service <serviceName> <AppName> ex: cf bind-service currency_exchange_conversion_service-logdrain CFGradleCurrencyExchangeService
+8. Go back to papertrail->dashboard and click on the logname you created "ex: mylog-drain"
+
+
+
+
+Some Observations and Errors:
+1. I once issue and command cf api "XXXX" then later on after this I was not able to login. 
+2. It always took me to API-Endpoint> ## and I was not able to do anything
+3. To get out of this I ran the below command and everything came back okay
+command : cf login -a https://api.run.pivotal.io
+
+
+
+Local Cloud Foundry Dev Environment
+To begin using CF Dev, please run:
+
+1. Start the CF Dev by invoking cf dev start
+ 	    cf login -a https://api.dev.cfdev.sh --skip-ssl-validation
+ 	
+ 	Admin user => Email: admin / Password: admin
+ 	Regular user => Email: user / Password: pass
+ 	
+ 	To deploy a particular service, please run:
+ 	    cf dev deploy-service <service-name> [Available services: mysql]
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+Postgresql Start and stop on MAC.(To install we have already used the command cmd> brew install postgres) https://morphocode.com/how-to-install-postgis-on-mac-os-x/
+Start Server : pg_ctl -D /usr/local/var/postgres start
+Stope Server : pg_ctl -D /usr/local/var/postgres stop    or  pg_ctl -D /usr/local/var/postgres stop -s -m fast
+To have launchd start postgresql now and restart at login: brew services start postgresql
+Status of the server : pg_ctl status
+username : nisum_user
+DB: exchangerate
+If that’s a fresh installation, we need to initialize the database cluster: initdb /usr/local/var/DBName
+Create Database : createdb <DBName>       i.e "exchangerate"
+We’ll use the psql command line utility to connect to the database that we’ve just created: psql exchangerate
+To drop the database run: dropdb exchangerate
+list all tables in our database: \dt
+
+
+
+
+
+
+
+
+
+
+
+
