@@ -1,0 +1,54 @@
+Quick Notest on some mistakes I made while building an Spring Project
+
+1. Importing an existing project to intellij : Close all existing projects and from the intellij welcome screen choose open project(Dont choose anything else)
+2. @GeneratedValue usage @GeneratedValue(strategy = GenerationType.IDENTITY)
+3. to populate the Created and updated timestamp Annotate the class with the below two annotations
+		1. @EntityListeners(AuditingEntityListener.class)
+		2. @JsonIgnoreProperties(value = {"created", "updated"}, allowGetters = true)
+		3. Annotate the create field as @CreatedDate & @Temporal(TemporalType.TIMESTAMP)
+
+3. Extend the Repository class to JPARepository<>
+4. For Exception Handling.
+	1. Create an CustomizedExceptionClass POJO class with Audit variables(Date, ExceptionMessage, ExceptionDesctiption)
+	2. Creata a GenereicExceptionClass which extends ResponseEntityExceptionHandler and have the main class annotated with @ControllerAdvise and @RestController
+	
+
+5. Configuring the driver with timeZone
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost:3306/currency_exchange?serverTimezone=UTC
+spring.jpa.properties.hibernate.format_sql=true
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.springframework.jdbc.core.JdbcTemplate=DEBUG
+
+Some Source Information:
+
+https://spring.io/guides/gs/accessing-data-mysql/
+
+
+search:
+getting started with spring security
+spring.datasource.user.name
+spring.datasource.user.password
+to insert pre-defined inserts have a file import.sql in resources folder
+
+
+manifest.yml
+1. always use ":" and "-" for seperation ex:  spring: <NameOfApplication> path: <JarFilePath> buildpack: <BuildPack> Memory: 1G
+
+For Log Drain
+1. Configura a class and annotate it with @Component and @RefreshScope
+2. use the @Value$(${<servicename>.propertyName})
+
+Making an RestCall to fetch details Using Feign
+1. Annote the main Application class with @EnableRibbonClient and @EnableFeignClient
+2. create a Repository interface and have it annotated with @FeignClient(<CallingServiceName>) and @RibbonClient(<CallingServiceName>) 
+3. When you create a proxy interface(***One very important thing is to add the @PathVaraiblae(name="Whatever is passed") else you will get AutoWired dependency injection error 
+
+Sleuth Dependency:
+1. Add the Sleuth Dependenc for common logging and 
+2. Add the sampleBean in Application class: ex :
+	@Bean
+	public Sampler defaultSampler() {
+		return Sampler.ALWAYS_SAMPLE;
+	}
+3.
