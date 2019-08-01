@@ -7,6 +7,7 @@ import com.vivekchutke.microservice.product.productservice.repository.ProductRep
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -17,6 +18,9 @@ public class ProductController {
     @Autowired
     private ProductRepo productRepo;
 
+    @Autowired
+    private Environment environment;
+
     Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     @GetMapping("/products")
@@ -24,6 +28,9 @@ public class ProductController {
 
         logger.info("In retrieve products List:");
         List<Product> products = productRepo.findAll();
+
+//        logger.info("#### Port Information is: "+environment.getProperty("local.server.port"));
+        logger.info("#### Printing Blue VCAP_Application Details: "+environment.getProperty("VCAP_Application"));
 
         if(products != null && products.isEmpty())
         {

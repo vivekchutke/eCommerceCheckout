@@ -51,4 +51,22 @@ Sleuth Dependency:
 	public Sampler defaultSampler() {
 		return Sampler.ALWAYS_SAMPLE;
 	}
-3.
+
+Making a Rest Call with RestTemplate and not with Feign Client
+ResponseEntity<ProductDetails> productDetailsResponseEntity =
+                new RestTemplate().getForEntity("http://localhost:8080/product/{productId}", ProductDetails.class, uriVariable);
+                
+Configuring of H2         
+1. Just add the H2 and JPA dependenies
+2. to view logs add the below propties in application.properties file
+	spring.jpa.show-sql=true
+	spring.h2.console=true       
+                
+                
+                
+                
+                
+                
+                
+                
+                

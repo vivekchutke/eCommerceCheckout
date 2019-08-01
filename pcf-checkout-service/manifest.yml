@@ -9,7 +9,8 @@ spring:
       name: ${vcap.services.myUserProvidedCupsService.credentials.username}
       password: ${vcap.service.myUserProvidedCupsService.credentials.password}
 
+# Currently the below are been used in producion environment and the service names might be differnt
 services:
   - myEurekaServiceRegistry
-  - myUserProvidedCupsService
-  - pcflogs
+  - myUserProvidedCupsServiceProd
+  - pcflogsProd
