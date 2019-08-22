@@ -1,2 +1,3 @@
 --insert into promotion(created_date, legal_disclaimer, promotion_description, promotion_effective, promotion_expiry_date, promotion_name, last_updated) values(current_date,'Legal Disc','promodesc',current_date,current_date,'PromotionName',current_date)
-insert into promotion(PROMOTION_DESCRIPTION, PROMOTION_NAME  ) values('Test Description','Promotion Name')
+insert into promotion(PROMOTION_DESCRIPTION, PROMOTION_NAME, Promo_Code,created,last_updated,inserted_by) values('Test Description','Promotion Name', 'test',current_date, current_date, 'PreInsert')
+insert into promotion(PROMOTION_DESCRIPTION, PROMOTION_NAME, Promo_Code,created,last_updated, inserted_by) values('Beauty Promo 25% off Description','BeautyBox','beauty',current_date, current_date,'PreInsert')
