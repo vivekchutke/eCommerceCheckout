@@ -5,11 +5,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class ProductNotFoundException extends RuntimeException {
-
+    // Nicely Formatted the file
     public  ProductNotFoundException(String message) {
-
         super(message);
     }
-
-    // Addint this changes and comiting them to see if it flows to git
 }
